@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador de Firmas — MetroTec</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --orange: #ef4129;
+        --dark: #1a1a1a;
+        --gray: #6b7280;
+        --gray-light: #f4f4f5;
+        --white: #ffffff;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Sora", sans-serif;
+        background: #fafafa;
+        color: var(--dark);
+        min-height: 100vh;
+      }
+
+      header {
+        background: var(--dark);
+        padding: 20px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid var(--orange);
+      }
+      header h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: -0.02em;
+      }
+      header h1 span {
+        color: var(--orange);
+      }
+      header .badge {
+        background: var(--orange);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .page-layout {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 36px 24px;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+
+      /* FORM */
+      .form-panel {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        position: sticky;
+        top: 24px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      }
+      .form-panel h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--gray-light);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .form-panel h2::before {
+        content: "";
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        background: var(--orange);
+        border-radius: 3px;
+      }
+      .field-group {
+        margin-bottom: 13px;
+      }
+      label {
+        display: block;
+        font-size: 0.71rem;
+        font-weight: 600;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 5px;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="url"],
+      input[type="tel"] {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        font-family: "Sora", sans-serif;
+        font-size: 0.84rem;
+        color: var(--dark);
+        background: var(--gray-light);
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        outline: none;
+      }
+      input:focus {
+        border-color: var(--orange);
+        background: var(--white);
+      }
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 15px 0;
+      }
+
+      .photo-upload-area {
+        border: 2px dashed var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        background: var(--gray-light);
+        position: relative;
+        overflow: hidden;
+      }
+      .photo-upload-area:hover {
+        border-color: var(--orange);
+        background: #fff5f2;
+      }
+      .photo-upload-area input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      }
+      .photo-preview-thumb {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 6px;
+        display: none;
+        border: 3px solid var(--orange);
+      }
+      .upload-icon {
+        font-size: 1.5rem;
+        margin-bottom: 3px;
+        display: block;
+      }
+      .upload-text {
+        font-size: 0.76rem;
+        color: var(--gray);
+      }
+
+      .btn-generate {
+        width: 100%;
+        background: var(--orange);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-family: "Sora", sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+        margin-bottom: 8px;
+      }
+      .btn-generate:hover {
+        background: #c93a09;
+      }
+      .btn-generate:active {
+        transform: scale(0.98);
+      }
+      .btn-copy {
+        width: 100%;
+        background: var(--dark);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-family: "Sora", sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-copy:hover {
+        background: #333;
+      }
+      .copy-success {
+        display: none;
+        text-align: center;
+        color: #16a34a;
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-top: 10px;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* PREVIEW */
+      .preview-panel {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      }
+      .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--gray-light);
+      }
+      .preview-header h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .preview-header h2::before {
+        content: "";
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        background: var(--dark);
+        border-radius: 3px;
+      }
+
+      .note-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.76rem;
+        color: #92400e;
+        margin-bottom: 18px;
+        line-height: 1.6;
+      }
+      .note-box strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .note-box ul {
+        padding-left: 16px;
+        margin-top: 4px;
+      }
+      .note-box li {
+        margin-bottom: 2px;
+      }
+      .note-box code {
+        background: #fef3c7;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 0.72rem;
+      }
+
+      #preview-container {
+        background: #e8e8e8;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        overflow-x: auto;
+        min-height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .placeholder-msg {
+        text-align: center;
+        color: var(--gray);
+        font-size: 0.875rem;
+      }
+      .placeholder-msg .big-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 8px;
+        opacity: 0.4;
+      }
+
+      .code-section {
+        margin-top: 20px;
+      }
+      .code-section h3 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
+      }
+      #html-output {
+        background: #1e1e2e;
+        color: #cdd6f4;
+        border-radius: 10px;
+        padding: 14px;
+        font-family: "Courier New", monospace;
+        font-size: 0.72rem;
+        line-height: 1.6;
+        max-height: 200px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        display: none;
+      }
+      .instructions {
+        background: var(--gray-light);
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 0.78rem;
+        color: var(--gray);
+        line-height: 1.6;
+        margin-top: 14px;
+      }
+      .instructions strong {
+        color: var(--dark);
+      }
+      .instructions ol {
+        padding-left: 18px;
+        margin-top: 6px;
+      }
+      .instructions li {
+        margin-bottom: 4px;
+      }
+
+      /* FIRMA — estilos de vista previa */
+      .signature-wrapper {
+        width: 830px;
+        height: 210px;
+        background: #fff;
+        display: flex;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
+      }
+      .left-panel {
+        width: 330px;
+        background: linear-gradient(90deg, #f68920 0%, #ef4129 100%);
+        border-top-right-radius: 90px;
+        border-bottom-right-radius: 90px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        flex-shrink: 0;
+      }
+      .sig-photo {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-15%, -50%);
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.5);
+        z-index: 5;
+      }
+      .sig-photo-placeholder {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        background: #5d5d5d;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-15%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+      }
+      .sig-photo-placeholder span {
+        font-size: 10px;
+        color: #ccc;
+        margin-top: 6px;
+      }
+      .brand-name {
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        z-index: 10;
+      }
+      .middle-panel {
+        width: 270px;
+        flex-shrink: 0;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 18px 18px 18px 36px;
+      }
+      .sig-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sig-separator {
+        height: 1px;
+        background: #ccc;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .contact-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 7px;
+      }
+      .contact-icon {
+        width: 30px;
+        height: 30px;
+        background: #727272;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        flex-shrink: 0;
+      }
+      .contact-icon svg {
+        display: block;
+      }
+      .contact-text {
+        font-size: 11.5px;
+        color: #444;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .contact-text a {
+        color: #444;
+        text-decoration: none;
+      }
+      .right-panel {
+        flex: 1;
+        background: #fff;
+        border-left: 1px solid #eaeaea;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 18px 20px 14px 20px;
+      }
+      .social-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+      }
+      .social-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        border-radius: 6px;
+        text-decoration: none;
+      }
+      .social-icon.linkedin {
+        background: #0077b5;
+        font-family: serif;
+        font-style: italic;
+      }
+      .social-icon.instagram {
+        background: radial-gradient(
+          circle at 30% 107%,
+          #fdf497 0%,
+          #fdf497 5%,
+          #fd5949 45%,
+          #d6249f 60%,
+          #285aeb 90%
+        );
+      }
+      .company-logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+      .totvs-logo-img {
+        width: 28px;
+        height: 28px;
+        border-radius: 5px;
+      }
+      .totvs-text {
+        font-size: 22px;
+        font-weight: 900;
+        color: #0b1a30;
+        letter-spacing: -1px;
+      }
+
+      @media (max-width: 900px) {
+        .page-layout {
+          grid-template-columns: 1fr;
+        }
+        .form-panel {
+          position: static;
+        }
+        .signature-wrapper {
+          width: 100%;
+          height: auto;
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>MetroTec <span>Firma</span> Generator</h1>
+      <span class="badge">Email Signature Tool</span>
+    </header>
+
+    <div class="page-layout">
+      <!-- FORMULARIO -->
+      <div class="form-panel">
+        <h2>Tus datos</h2>
+
+        <div class="field-group">
+          <label>Nombre Completo</label>
+          <input
+            type="text"
+            id="f-name"
+            placeholder="Ej: Victoria Brizuela"
+            oninput="liveUpdate()"
+          />
+        </div>
+        <div class="field-group">
+          <label>Puesto / Cargo</label>
+          <input
+            type="text"
+            id="f-role"
+            placeholder="Ej: Analista Comercial"
+            oninput="liveUpdate()"
+          />
+        </div>
+        <div class="divider"></div>
+        <div class="field-group">
+          <label>Email</label>
+          <input
+            type="email"
+            id="f-email"
+            placeholder="victoria@metrotec.com.ar"
+            oninput="liveUpdate()"
+          />
+        </div>
+        <div class="divider"></div>
+
+        <div class="field-group">
+          <label>URL Foto de Perfil</label>
+          <input
+            type="url"
+            id="f-photo-url"
+            placeholder="Pegá un link de Google Drive o URL directa"
+            oninput="handlePhotoURL()"
+          />
+          <p
+            id="drive-msg"
+            style="
+              display: none;
+              font-size: 0.72rem;
+              color: #16a34a;
+              margin-top: 4px;
+            "
+          >
+            ✓ Link de Google Drive convertido
+          </p>
+        </div>
+
+        <div class="divider"></div>
+        <button class="btn-generate" onclick="generateSignature()">
+          ✦ Generar Firma
+        </button>
+        <button
+          class="btn-copy"
+          id="btn-open"
+          onclick="openSignature()"
+          style="display: none"
+        >
+          ↗ Abrir Código
+        </button>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="preview-panel">
+        <div class="preview-header"><h2>Vista Previa</h2></div>
+
+        <div id="preview-container">
+          <div class="placeholder-msg">
+            <span class="big-icon">✦</span>
+            Completá el formulario y hacé clic en <strong>Generar Firma</strong>
+          </div>
+        </div>
+
+        <div class="code-section" id="code-section" style="display: none">
+          <h3>✓ Firma generada correctamente</h3>
+        </div>
+
+        <div class="instructions">
+          <strong>📌 Cómo usarlo:</strong>
+          <ol>
+            <li>Completá los datos del formulario → <em>Generar Firma</em>.</li>
+            <li>
+              Hacé clic en <strong>Abrir Código</strong> — se abrirá una nueva
+              pestaña con tu firma.
+            </li>
+            <li>
+              En esa pestaña, seleccioná todo (<code>Ctrl+A</code>) y copiá
+              (<code>Ctrl+C</code>) en el apartado "firma" de tu correo.
+            </li>
+            <li>
+              <strong>Gmail:</strong> Configuración → Firma → pegá
+              (<code>Ctrl+V</code>) en el editor de firma.
+            </li>
+          </ol>
+        </div>
+
+        <div class="instructions" style="margin-top: 8px">
+          <strong>🖼️ Foto desde Google Drive:</strong>
+          <ol>
+            <li>Subí tu foto a Google Drive.</li>
+            <li>
+              Clic derecho → <strong>Compartir</strong> →
+              <em>Cualquier persona con el enlace</em> (Lector).
+            </li>
+            <li>
+              Copiá el link y pegalo en el campo
+              <strong>URL Foto de Perfil</strong>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configuración de URLs de imágenes
+      const IMG_ICON_TELEFONO =
+        "https://img.icons8.com/ios-filled/50/ffffff/phone.png";
+      const IMG_ICON_EMAIL =
+        "https://img.icons8.com/ios-filled/50/ffffff/email.png";
+      const IMG_ICON_UBICACION =
+        "https://img.icons8.com/ios-filled/50/ffffff/marker.png";
+      const IMG_ICON_LINKEDIN =
+        "https://img.icons8.com/ios-filled/50/ffffff/linkedin.png";
+      const IMG_ICON_INSTAGRAM =
+        "https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png";
+      const IMG_LOGO_TOTVS =
+        "https://avatars.githubusercontent.com/u/20243897?s=200&v=4";
+
+      // SVG inline para la vista previa
+      const SVG_PHONE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.13 12 19.79 19.79 0 0 1 1.06 3.4 2 2 0 0 1 3.05 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>`;
+      const SVG_EMAIL = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`;
+      const SVG_LOCATION = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+      const SVG_INSTAGRAM = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`;
+
+      function convertDriveURL(url) {
+        // https://drive.google.com/file/d/FILE_ID/view...
+        let match = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+        if (match) return "https://lh3.googleusercontent.com/d/" + match[1];
+        // https://drive.google.com/open?id=FILE_ID
+        match = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+        if (match) return "https://lh3.googleusercontent.com/d/" + match[1];
+        return url;
+      }
+
+      function handlePhotoURL() {
+        const input = document.getElementById("f-photo-url");
+        const msg = document.getElementById("drive-msg");
+        const raw = input.value.trim();
+        const converted = convertDriveURL(raw);
+        if (converted !== raw && raw.includes("drive.google.com")) {
+          input.value = converted;
+          msg.style.display = "block";
+        } else {
+          msg.style.display = "none";
+        }
+        liveUpdate();
+      }
+
+      function liveUpdate() {
+        if (document.getElementById("f-name").value.trim()) generateSignature();
+      }
+
+      function generateSignature() {
+        const name =
+          document.getElementById("f-name").value || "Nombre Apellido";
+        const role = document.getElementById("f-role").value || "Cargo";
+        const phone = "+54 (351) 8935431";
+        const email = document.getElementById("f-email").value || "";
+        const location = "José Roque Funes 1562 - Córdoba, Argentina";
+        const linkedin = "https://www.linkedin.com/company/metrotecsa/";
+        const instagram = "https://www.instagram.com/metrotecsa/";
+        const photoURL = document.getElementById("f-photo-url").value || "";
+
+        // Vista previa
+        const photoPreview = photoURL
+          ? `<img class="sig-photo" src="${photoURL}" alt="${name}">`
+          : `<div class="sig-photo-placeholder">
+           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+           <span>Tu foto</span>
+         </div>`;
+
+        document.getElementById("preview-container").innerHTML = `
+    <div class="signature-wrapper">
+      <div class="left-panel">
+        <div style="position:absolute;top:18px;left:14px;z-index:10;">
+          <p style="margin:0;font-size:18px;font-weight:700;color:#ffffff;font-family:'Sora',sans-serif;line-height:1.3;max-width:120px;">${role}</p>
+        </div>
+        ${photoPreview}
+        <div class="brand-name" style="position:absolute;bottom:14px;left:14px;z-index:10;"><span style="font-size:20px;font-weight:700;color:#ffffff;font-family:'Sora',sans-serif;letter-spacing:0.5px;">MetroTec</span></div>
+      </div>
+      <div class="middle-panel">
+        <div class="sig-name">${name}</div>
+        <div class="sig-separator"></div>
+        ${
+          phone
+            ? `<div class="contact-row"><div class="contact-icon">${SVG_PHONE}</div><span class="contact-text">${phone}</span></div>`
+            : ""
+        }
+        ${
+          email
+            ? `<div class="contact-row"><div class="contact-icon">${SVG_EMAIL}</div><span class="contact-text"><a href="mailto:${email}">${email}</a></span></div>`
+            : ""
+        }
+        ${
+          location
+            ? `<div class="contact-row"><div class="contact-icon">${SVG_LOCATION}</div><span class="contact-text">${location}</span></div>`
+            : ""
+        }
+      </div>
+      <div class="right-panel">
+        <div class="social-container">
+          ${
+            linkedin
+              ? `<a href="${linkedin}"  target="_blank" class="social-icon linkedin" title="LinkedIn">in</a>`
+              : ""
+          }
+          ${
+            instagram
+              ? `<a href="${instagram}" target="_blank" class="social-icon instagram" title="Instagram">${SVG_INSTAGRAM}</a>`
+              : ""
+          }
+        </div>
+        <div class="company-logo-container">
+          <img class="totvs-logo-img" src="${IMG_LOGO_TOTVS}" alt="TOTVS"
+            onerror="this.style.display='none';this.nextSibling.style.display='block'"
+          ><span style="display:none;font-size:10px;color:#aaa;">TOTVS logo</span>
+          <div class="totvs-text">TOTVS</div>
+        </div>
+      </div>
+    </div>`;
+
+        // HTML exportable
+        const photoExport = photoURL
+          ? `<img src="${photoURL}" width="160" height="160" style="width:160px;height:160px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);display:block;" alt="${name}">`
+          : `<div style="width:160px;height:160px;border-radius:50%;background:#5d5d5d;display:block;"></div>`;
+
+        const ICON_TEL_INLINE = `<img src="${IMG_ICON_TELEFONO}" width="16" height="16" style="display:block;margin:0 auto;vertical-align:middle;" alt="Tel">`;
+        const ICON_EMAIL_INLINE = `<img src="${IMG_ICON_EMAIL}" width="16" height="16" style="display:block;margin:0 auto;vertical-align:middle;" alt="Email">`;
+        const ICON_LOC_INLINE = `<img src="${IMG_ICON_UBICACION}" width="16" height="16" style="display:block;margin:0 5px 0 7.5px;vertical-align:middle;" alt="Ubicación">`;
+        const ICON_LI_INLINE = `<img src="${IMG_ICON_LINKEDIN}" width="22" height="22" style="display:block;margin:0 auto;vertical-align:middle;" alt="LinkedIn">`;
+        const ICON_IG_INLINE = `<img src="${IMG_ICON_INSTAGRAM}" width="22" height="22" style="display:block;margin:0 auto;vertical-align:middle;" alt="Instagram">`;
+        const TOTVS_LOGO_URL = IMG_LOGO_TOTVS;
+
+        const exportHTML = `<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<style>
+  [data-ogsc] .dark-lock { color: #1a1a1a !important; }
+  [data-ogsb] .bg-lock { background-color: #ffffff !important; }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+<table cellpadding="0" cellspacing="0" border="0" align="left" style="width:800px;max-width:800px;height:180px;font-family:'Segoe UI',Arial,sans-serif;border-collapse:collapse;background:#ffffff;" bgcolor="#ffffff" class="bg-lock">
+  <tr>
+
+    <td width="330" valign="top" style="width:330px;height:180px;background:linear-gradient(90deg,#f68920 0%,#ef4129 100%);border-top-right-radius:90px;border-bottom-right-radius:90px;padding:0;overflow:hidden;" bgcolor="#f68920">
+      <!--[if mso]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" style="width:330px;height:180px;" filled="true" stroked="false"><v:fill type="gradient" color="#f68920" color2="#ef4129" angle="90"/><![endif]-->
+      <table cellpadding="0" cellspacing="0" border="0" width="330" style="width:330px;height:100%;border-collapse:collapse;">
+        <tr>
+          <!-- Columna izquierda: Cargo arriba + MetroTec abajo -->
+          <td width="130" valign="top" style="padding:0;height:100%;">
+            <table cellpadding="0" cellspacing="0" border="0" width="130" style="width:130px;height:100%;">
+              <tr>
+                <td valign="top" style="padding:18px 0 0 14px;">
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;line-height:1.3;max-width:120px;">${role}</p>
+                </td>
+              </tr>
+              <tr>
+                <td valign="bottom" style="padding:0 0 10px 14px;">
+                  <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;letter-spacing:0.5px;">MetroTec</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <!-- Columna derecha: Foto de perfil -->
+          <td width="200" valign="middle" align="center" style="height:100%;padding:0;">
+            ${photoExport}
+          </td>
+        </tr>
+      </table>
+      <!--[if mso]></v:rect><![endif]-->
+    </td>
+
+    <td width="270" valign="middle" style="width:270px;padding:18px 18px 18px 36px;background:#ffffff;" bgcolor="#ffffff" class="bg-lock">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td style="padding-bottom:8px;">
+            <p style="margin:0;font-size:20px;font-weight:700;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;" class="dark-lock">${name}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding-bottom:10px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr><td style="height:1px;background:#cccccc;font-size:0;line-height:0;"></td></tr>
+            </table>
+          </td>
+        </tr>
+        ${
+          phone
+            ? `<tr><td style="padding-bottom:7px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td width="30" style="width:30px;height:30px;background:#727272;border-radius:50%;text-align:center;vertical-align:middle;font-size:0;line-height:30px;" bgcolor="#727272" align="center" valign="middle">${ICON_TEL_INLINE}</td>
+            <td style="padding-left:8px;font-size:11.5px;color:#444444;font-family:'Segoe UI',Arial,sans-serif;">${phone}</td>
+          </tr></table>
+        </td></tr>`
+            : ""
+        }
+        ${
+          email
+            ? `<tr><td style="padding-bottom:7px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td width="30" style="width:30px;height:30px;background:#727272;border-radius:50%;text-align:center;vertical-align:middle;font-size:0;line-height:30px;" bgcolor="#727272" align="center" valign="middle">${ICON_EMAIL_INLINE}</td>
+            <td style="padding-left:8px;font-size:11.5px;font-family:'Segoe UI',Arial,sans-serif;"><a href="mailto:${email}" style="color:#444444;text-decoration:none;">${email}</a></td>
+          </tr></table>
+        </td></tr>`
+            : ""
+        }
+        ${
+          location
+            ? `<tr><td style="padding-bottom:7px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td width="30" style="width:30px;height:30px;background:#727272;border-radius:50%;text-align:center;vertical-align:middle;font-size:0;line-height:30px;" bgcolor="#727272" align="center" valign="middle">${ICON_LOC_INLINE}</td>
+            <td style="padding-left:8px;font-size:11.5px;color:#444444;font-family:'Segoe UI',Arial,sans-serif;">${location}</td>
+          </tr></table>
+        </td></tr>`
+            : ""
+        }
+      </table>
+    </td>
+
+    <td valign="top" style="padding:18px 20px 14px 20px;background:#ffffff;border-left:1px solid #eaeaea;" bgcolor="#ffffff" class="bg-lock">
+      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td align="right" style="padding-bottom:10px;">
+            ${
+              linkedin
+                ? `<a href="${linkedin}"  target="_blank" style="display:inline-block;margin-left:5px;text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;"><tr><td width="30" height="30" align="center" valign="middle" style="width:30px;height:30px;background:#0077B5;border-radius:6px;text-align:center;vertical-align:middle;">${ICON_LI_INLINE}</td></tr></table></a>`
+                : ""
+            }
+            ${
+              instagram
+                ? `<a href="${instagram}" target="_blank" style="display:inline-block;margin-left:5px;text-decoration:none;"><table cellpadding="0" cellspacing="0" border="0" style="display:inline-block;"><tr><td width="30" height="30" align="center" valign="middle" style="width:30px;height:30px;background:#E1306C;border-radius:6px;text-align:center;vertical-align:middle;" bgcolor="#E1306C">${ICON_IG_INLINE}</td></tr></table></a>`
+                : ""
+            }
+          </td>
+        </tr>
+        <tr><td style="height:80px;"></td></tr>
+        <tr>
+          <td align="right">
+            <table cellpadding="0" cellspacing="0" border="0" align="right">
+              <tr>
+                <td valign="middle"><img src="${TOTVS_LOGO_URL}" width="28" height="28" style="display:block;border-radius:5px;" alt="TOTVS"></td>
+                <td valign="middle" style="padding-left:6px;font-size:22px;font-weight:900;color:#0b1a30;font-family:'Segoe UI',Arial,sans-serif;letter-spacing:-1px;">TOTVS</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+
+  </tr>
+</table>
+</body>
+</html>`;
+
+        window._signatureHTML = exportHTML;
+        document.getElementById("btn-open").style.display = "block";
+        document.getElementById("code-section").style.display = "block";
+      }
+
+      function openSignature() {
+        if (!window._signatureHTML) generateSignature();
+        const newTab = window.open("", "_blank");
+        newTab.document.write(window._signatureHTML);
+        newTab.document.close();
+      }
+    </script>
+  </body>
+</html>
